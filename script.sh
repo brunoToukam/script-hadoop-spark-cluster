@@ -66,7 +66,7 @@ echo "export HADOOP_HDFS_HOME=$HOME/hadoop" >> ~/.bashrc
 echo "export YARN_HOME=$HOME/hadoop" >> ~/.bashrc
 echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HOME/hadoop/lib/native" >> ~/.bashrc
 echo "export PATH=$PATH:$HOME/hadoop/sbin:$HOME/hadoop/bin" >> ~/.bashrc
-echo "export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/" >> ~/.bashrc
+echo "export HADOOP_CONF_DIR=$HOME/hadoop/etc/hadoop/" >> ~/.bashrc
 
 source ~/.bashrc
 
@@ -247,5 +247,6 @@ do
 done
 echo "*********************************************************************************"
 
+source ~/.bashrc
 #Formater le namenode
 hdfs namenode -format
