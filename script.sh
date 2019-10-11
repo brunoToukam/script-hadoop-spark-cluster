@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Author Bruno Toukam
+# Author BrunoToukam
 
 echo "Installation de hadoop et spark"
 cd ~
@@ -49,11 +49,11 @@ sudo yum -y install java-1.8.0-openjdk-devel
 echo "*********************************************************************************"
 
 #Installation de hadoop 2.7.7
-#wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
-#tar zxf hadoop-2.7.7.tar.gz
-#mv hadoop-2.7.7 hadoop
-#rm hadoop-2.7.7.tar.gz
-#echo "*********************************************************************************"
+wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
+tar zxf hadoop-2.7.7.tar.gz
+mv hadoop-2.7.7 hadoop
+rm hadoop-2.7.7.tar.gz
+echo "*********************************************************************************"
 
 #Configuration des variables d'environnment java et hadoop
 echo "#Variables env" >> ~/.bashrc 
@@ -71,8 +71,7 @@ source ~/.bashrc
 echo "*********************************************************************************"
 
 #Creation du core-site.xml
-echo > ~/hadoop/etc/hadoop/core-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/core-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' > ~/hadoop/etc/hadoop/core-site.xml
 echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/core-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/core-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/core-site.xml
@@ -90,8 +89,7 @@ mkdir -p ~/hadoop_store/hdfs/namenode
 mkdir -p ~/hadoop_store/hdfs/datanode
 chmod 755 ~/hadoop_store/hdfs/datanode
 
-echo > ~/hadoop/etc/hadoop/hdfs-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' > ~/hadoop/etc/hadoop/hdfs-site.xml
 echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/hdfs-site.xml
@@ -111,8 +109,7 @@ echo "**************************************************************************
 
 #Creation du mapred-site.xml
 touch ~/hadoop/etc/hadoop/mapred-site.xml
-echo > ~/hadoop/etc/hadoop/mapred-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' > ~/hadoop/etc/hadoop/mapred-site.xml
 echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/mapred-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/mapred-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/mapred-site.xml
@@ -126,8 +123,7 @@ echo "</configuration>" >> ~/hadoop/etc/hadoop/mapred-site.xml
 echo "*********************************************************************************"
 
 #Creation du yarn-site.xml
-echo > ~/hadoop/etc/hadoop/yarn-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' > ~/hadoop/etc/hadoop/yarn-site.xml
 echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/yarn-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/yarn-site.xml
 echo -e "\n" >> ~/hadoop/etc/hadoop/yarn-site.xml
@@ -170,7 +166,12 @@ echo > ~/hadoop/etc/hadoop/slaves
 k=0
 while [ $k -lt $nombreslaves ]
 do
-	echo ${slaves[$k]} >> ~/hadoop/etc/hadoop/slaves
+	if [ $k -eq 0 ]
+	then
+		echo ${slaves[$k]} > ~/hadoop/etc/hadoop/slaves
+	else
+		echo ${slaves[$k]} >> ~/hadoop/etc/hadoop/slaves
+	fi
         k=$((k+1))
 done
 echo "*********************************************************************************"
@@ -219,7 +220,7 @@ do
 	mkdir -p ~/hadoop_store/hdfs/datanode;
 	chmod 755 ~/hadoop_store/hdfs/datanode;
 
-
+	exit
 
 	bash -l'	
 		
