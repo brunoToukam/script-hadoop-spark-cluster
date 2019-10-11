@@ -66,8 +66,10 @@ echo "export HADOOP_HDFS_HOME=$HOME/hadoop" >> ~/.bashrc
 echo "export YARN_HOME=$HOME/hadoop" >> ~/.bashrc
 echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HOME/hadoop/lib/native" >> ~/.bashrc
 echo "export PATH=$PATH:$HOME/hadoop/sbin:$HOME/hadoop/bin" >> ~/.bashrc
+echo "export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/" >> ~/.bashrc
 
 source ~/.bashrc
+
 echo "*********************************************************************************"
 
 #Creation du core-site.xml
@@ -97,12 +99,12 @@ echo -e "\n" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "<configuration>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "  <property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "    <name>dfs.namenode.name.dir</name>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
-echo "    <value>file://~/hadoop_store/hdfs/namenode</value>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "    <value>file:$HOME/hadoop_store/hdfs/namenode</value>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "  </property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 
 echo "  <property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "    <name>dfs.datanode.data.dir</name>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
-echo "    <value>file://~/hadoop_store/hdfs/datanode</value>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "    <value>file:$HOME/hadoop_store/hdfs/datanode</value>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "  </property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "</configuration>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "*********************************************************************************"
@@ -181,10 +183,8 @@ echo "**************************************************************************
 k=0
 while [ $k -lt $nombreslaves ]
 do
-	echo "Entrez le nom du slave$((k+1))"
-	read username
-        ssh-copy-id -i ~/.ssh/id_rsa.pub $username@${slaves[$k]}
-	ssh -t $username@${slaves[$k]} '
+        ssh-copy-id -i ~/.ssh/id_rsa.pub ${names[$k]}@${slaves[$k]}
+	ssh -t ${names[$k]}@${slaves[$k]} '
 	cd ~;
 	sudo yum -y update;
 
