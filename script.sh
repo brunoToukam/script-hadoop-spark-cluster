@@ -25,6 +25,7 @@ do
 done
 
 echo "*********************************************************************************"
+echo "make ssh-key and share into slaves"
 
 #Création de la clé ssh
 ssh-keygen -t rsa
@@ -186,6 +187,9 @@ do
         ssh-copy-id -i ~/.ssh/id_rsa.pub ${names[$k]}@${slaves[$k]}
 	ssh -t ${names[$k]}@${slaves[$k]} '
 	cd ~;
+	echo -e "\n"
+	echo "Working on ${names[$k]}";	
+
 	sudo yum -y update;
 
 
@@ -220,7 +224,8 @@ do
 	mkdir -p ~/hadoop_store/hdfs/datanode;
 	chmod 755 ~/hadoop_store/hdfs/datanode;
 
-	exit
+	echo "exit ${names[$k]}";
+	exit;
 
 	bash -l'	
 		
@@ -247,6 +252,15 @@ do
 done
 echo "*********************************************************************************"
 
-source ~/.bashrc
+
 #Formater le namenode
+echo "Formating namenode"
 hdfs namenode -format
+
+source ~/.bashrc
+
+echo "Starting dfs"
+start-dfs.sh
+
+echo "starting yarn"
+start-yarn.sh
