@@ -1,7 +1,9 @@
 #!/bin/bash
 
-echo "Installation de hadoop et spark"
+# Author Bruno Toukam
 
+echo "Installation de hadoop et spark"
+cd ~
 sudo yum -y update
 echo "*********************************************************************************"
 
@@ -27,7 +29,7 @@ echo "**************************************************************************
 #Création de la clé ssh
 ssh-keygen -t rsa
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-chmod 0600 authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
 echo "partage de la clé ssh aux slaves"
 p=0
 while [ $p -lt $nombreslaves ]
@@ -45,7 +47,6 @@ sudo yum -y install java-1.8.0-openjdk-devel
 echo "*********************************************************************************"
 
 #Installation de hadoop 2.7.7
-cd ~
 wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
 tar zxf hadoop-2.7.7.tar.gz
 mv hadoop-2.7.7 hadoop
@@ -63,107 +64,163 @@ echo "export HADOOP_HDFS_HOME=$HADOOP_HOME" >> ~/.bashrc
 echo "export YARN_HOME=$HADOOP_HOME" >> ~/.bashrc
 echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native" >> ~/.bashrc
 echo "export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin" >> ~/.bashrc
+
+source ~/.bashrc
 echo "*********************************************************************************"
 
-#Création du core-site.xml
-touch ~/InstallationCluster/config/core-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/InstallationCluster/config/core-site.xml
-echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/InstallationCluster/config/core-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/core-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/core-site.xml
+#Creation du core-site.xml
+echo > ~/hadoop/etc/hadoop/core-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/core-site.xml
+echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/core-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/core-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/core-site.xml
 
-echo "<configuration>" >> ~/InstallationCluster/config/core-site.xml
-echo "  <property>" >> ~/InstallationCluster/config/core-site.xml
-echo "    <name>fs.default.name</name>" >> ~/InstallationCluster/config/core-site.xml
-echo "    <value>hdfs://$masteraddress:8020</value>" >> ~/InstallationCluster/config/core-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/core-site.xml
-echo "</configuration>" >> ~/InstallationCluster/config/core-site.xml
+echo "<configuration>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "    <name>fs.default.name</name>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "    <value>hdfs://$masteraddress:8020</value>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "</configuration>" >> ~/hadoop/etc/hadoop/core-site.xml
 echo "*********************************************************************************"
 
-#Création du hdfs-site.xml
+#Creation du hdfs-site.xml
 mkdir -p ~/hadoop_store/hdfs/namenode
 mkdir -p ~/hadoop_store/hdfs/datanode
 chmod 755 ~/hadoop_store/hdfs/datanode
-touch ~/InstallationCluster/config/hdfs-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/InstallationCluster/config/hdfs-site.xml
-echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/InstallationCluster/config/hdfs-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/hdfs-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/hdfs-site.xml
 
-echo "<configuration>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "  <property>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "    <name>dfs.namenode.name.dir</name>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "    <value>file://~/hadoop_store/hdfs/namenode</value>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/hdfs-site.xml
+echo > ~/hadoop/etc/hadoop/hdfs-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 
-echo "  <property>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "    <name>dfs.datanode.data.dir</name>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "    <value>file://~/hadoop_store/hdfs/datanode</value>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/hdfs-site.xml
-echo "</configuration>" >> ~/InstallationCluster/config/hdfs-site.xml
+echo "<configuration>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "    <name>dfs.namenode.name.dir</name>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "    <value>file://~/hadoop_store/hdfs/namenode</value>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+
+echo "  <property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "    <name>dfs.datanode.data.dir</name>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "    <value>file://~/hadoop_store/hdfs/datanode</value>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
+echo "</configuration>" >> ~/hadoop/etc/hadoop/hdfs-site.xml
 echo "*********************************************************************************"
 
-#Création du mapred-site.xml
-touch ~/InstallationCluster/config/mapred-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/InstallationCluster/config/mapred-site.xml
-echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/InstallationCluster/config/mapred-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/mapred-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/mapred-site.xml
+#Creation du mapred-site.xml
+touch ~/hadoop/etc/hadoop/mapred-site.xml
+echo > ~/hadoop/etc/hadoop/mapred-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/mapred-site.xml
 
-echo "<configuration>" >> ~/InstallationCluster/config/mapred-site.xml
-echo "  <property>" >> ~/InstallationCluster/config/mapred-site.xml
-echo "    <name>mapreduce.framework.name</name>" >> ~/InstallationCluster/config/mapred-site.xml
-echo "    <value>yarn</value>" >> ~/InstallationCluster/config/mapred-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/mapred-site.xml
-echo "</configuration>" >> ~/InstallationCluster/config/mapred-site.xml
+echo "<configuration>" >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo "    <name>mapreduce.framework.name</name>" >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo "    <value>yarn</value>" >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/mapred-site.xml
+echo "</configuration>" >> ~/hadoop/etc/hadoop/mapred-site.xml
 echo "*********************************************************************************"
 
-#Création du yarn-site.xml
-touch ~/InstallationCluster/config/yarn-site.xml
-echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/InstallationCluster/config/yarn-site.xml
-echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/InstallationCluster/config/yarn-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/yarn-site.xml
-echo -e "\n" >> ~/InstallationCluster/config/yarn-site.xml
+#Creation du yarn-site.xml
+echo > ~/hadoop/etc/hadoop/yarn-site.xml
+echo '<?xml version="1.0" encoding="UTF-8"?>' >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo -e "\n" >> ~/hadoop/etc/hadoop/yarn-site.xml
 
-echo "<configuration>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  <property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <name>yarn.resourcemanager.resource-tracker.address</name>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <value>$masteraddress:8025</value>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/yarn-site.xml
+echo "<configuration>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <name>yarn.resourcemanager.resource-tracker.address</name>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <value>$masteraddress:8025</value>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 
-echo "  <property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <name>yarn.resourcemanager.scheduler.address</name>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <value>$masteraddress:8030</value>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/yarn-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <name>yarn.resourcemanager.scheduler.address</name>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <value>$masteraddress:8030</value>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 
-echo "  <property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <name>yarn.resourcemanager.address</name>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <value>$masteraddress:8050</value>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/yarn-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <name>yarn.resourcemanager.address</name>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <value>$masteraddress:8050</value>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 
-echo "  <property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <name>yarn.nodemanager.aux-services</name>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <value>mapreduce_shuffle</value>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/yarn-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <name>yarn.nodemanager.aux-services</name>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <value>mapreduce_shuffle</value>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 
-echo "  <property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <value>org.apache.hadoop.mapred.ShuffleHandler</value>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/yarn-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <value>org.apache.hadoop.mapred.ShuffleHandler</value>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 
-echo "  <property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <name>yarn.nodemanager.disk-health-checker.min-healthy-disks</name>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "    <value>0</value>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "  </property>" >> ~/InstallationCluster/config/yarn-site.xml
-echo "</configuration>" >> ~/InstallationCluster/config/yarn-site.xml
+echo "  <property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <name>yarn.nodemanager.disk-health-checker.min-healthy-disks</name>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "    <value>0</value>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "</configuration>" >> ~/hadoop/etc/hadoop/yarn-site.xml
+echo "*********************************************************************************"
 
-
-
-i=0
-while [ $i -lt $nombreslaves ]
+#Configuration des slaves
+echo > ~/hadoop/etc/hadoop/slaves
+k=0
+while [ $k -lt $nombreslaves ]
 do
-	echo ${slaves[$i]} >> ~/hadoop/etc/hadoop/slaves
-        i=$((i+1))
+	echo ${slaves[$k]} >> ~/hadoop/etc/hadoop/slaves
+        k=$((k+1))
 done
-echo "*********"
+echo "*********************************************************************************"
+
+
+#Slaves configuration
+k=0
+while [ $k -lt $nombreslaves ]
+do
+	echo "Entrez le nom du slave$((k+1))"
+	read username
+        ssh-copy-id -i ~/.ssh/id_rsa.pub $username@${slaves[$k]}
+	ssh -t $username@${slaves[$k]} '
+	cd ~;
+	sudo yum -y update;
+
+
+	#Installation de java 8;
+	sudo yum -y install java-1.8.0-openjdk-devel;
+
+
+	#Installation de hadoop 2.7.7;
+	wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz;
+	tar zxf hadoop-2.7.7.tar.gz;
+	mv hadoop-2.7.7 hadoop;
+	rm hadoop-2.7.7.tar.gz;
+
+
+	#Configuration des variables d environnment java et hadoop;
+	echo "#Variables env" >> ~/.bashrc;
+	echo "export JAVA_HOME=/usr/lib/jvm/java-openjdk" >> ~/.bashrc;
+	echo "export HADOOP_HOME=$HOME/hadoop" >> ~/.bashrc;
+	echo "export HADOOP_INSTALL=$HADOOP_HOME" >> ~/.bashrc;
+	echo "export HADOOP_MAPRED_HOME=$HADOOP_HOME" >> ~/.bashrc;
+	echo "export HADOOP_COMMON_HOME=$HADOOP_HOME" >> ~/.bashrc;
+	echo "export HADOOP_HDFS_HOME=$HADOOP_HOME" >> ~/.bashrc;
+	echo "export YARN_HOME=$HADOOP_HOME" >> ~/.bashrc;
+	echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native" >> ~/.bashrc;
+	echo "export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin" >> ~/.bashrc;
+
+	source ~/.bashrc;
+
+
+		
+
+
+	echo "hello";
+	mkdir ddd;
+	ls;
+
+	bash -l'	
+		
+        k=$((k+1))
+done
 
