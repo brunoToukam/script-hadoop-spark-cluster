@@ -2,10 +2,24 @@
 
 # Author BrunoToukam
 
-echo "Installation de hadoop et spark"
+
 cd ~
 sudo yum -y update
 echo "*********************************************************************************"
+
+# Config for barner
+sudo yum -y install epel-release
+sudo yum -y install snapd
+sudo systemctl enable --now snapd.socket
+sudo ln -s /var/lib/snapd/snap /snap
+sudo yum -y update
+sudo snap install figlet --edge
+sudo yum -y install figlet
+
+
+
+figlet Installation de hadoop
+
 
 #Configuration du /etc/hosts
 echo "Entrez l'adresse du master"
@@ -25,6 +39,7 @@ do
 done
 
 echo "*********************************************************************************"
+echo "make ssh-key and share into slaves"
 
 #Création de la clé ssh
 ssh-keygen -t rsa
@@ -66,7 +81,7 @@ echo "export HADOOP_HDFS_HOME=$HOME/hadoop" >> ~/.bashrc
 echo "export YARN_HOME=$HOME/hadoop" >> ~/.bashrc
 echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HOME/hadoop/lib/native" >> ~/.bashrc
 echo "export PATH=$PATH:$HOME/hadoop/sbin:$HOME/hadoop/bin" >> ~/.bashrc
-echo "export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/" >> ~/.bashrc
+echo "export HADOOP_CONF_DIR=$HOME/hadoop/etc/hadoop/" >> ~/.bashrc
 
 source ~/.bashrc
 
