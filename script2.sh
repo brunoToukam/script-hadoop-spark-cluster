@@ -178,12 +178,25 @@ do
 done
 echo "*********************************************************************************"
 
+# archiver hadoop pour l'envoyer aux slaves
+cd ~
+tar czf hadoop.tar.gz hadoop
+
+#Copie des config hadoop dans les slaves
+p=0
+while [ $p -lt $nombreslaves ]
+do
+	scp hadoop.tar.gz ${names[$p]}@${slaves[$p]}:~/.
+        p=$((p+1))
+done
+echo "*********************************************************************************"
+
+
 
 #Slaves configuration
 k=0
 while [ $k -lt $nombreslaves ]
 do
-        ssh-copy-id -i ~/.ssh/id_rsa.pub ${names[$k]}@${slaves[$k]}
 	ssh -t ${names[$k]}@${slaves[$k]} '
 	cd ~;
 	sudo yum -y update;
@@ -193,32 +206,19 @@ do
 	sudo yum -y install java-1.8.0-openjdk-devel;
 
 
-	#Installation de hadoop 2.7.7;
-	wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz;
-	tar zxf hadoop-2.7.7.tar.gz;
-	mv hadoop-2.7.7 hadoop;
-	rm hadoop-2.7.7.tar.gz;
-
-
 	#Configuration des variables d environnment java et hadoop;
 	echo "#Variables env" >> ~/.bashrc;
 	echo "export JAVA_HOME=/usr/lib/jvm/java-openjdk" >> ~/.bashrc;
-	echo "export HADOOP_HOME=$HOME/hadoop" >> ~/.bashrc;
-	echo "export HADOOP_INSTALL=$HOME/hadoop" >> ~/.bashrc;
-	echo "export HADOOP_MAPRED_HOME=$HOME/hadoop" >> ~/.bashrc;
-	echo "export HADOOP_COMMON_HOME=$HOME/hadoop" >> ~/.bashrc;
-	echo "export HADOOP_HDFS_HOME=$HOME/hadoop" >> ~/.bashrc;
-	echo "export YARN_HOME=$HOME/hadoop" >> ~/.bashrc;
-	echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HOME/hadoop/lib/native" >> ~/.bashrc;
-	echo "export PATH=$PATH:$HOME/hadoop/sbin:$HOME/hadoop/bin" >> ~/.bashrc;
-
+	
 
 	source ~/.bashrc;
-
 
 	mkdir -p ~/hadoop_store/hdfs/namenode;
 	mkdir -p ~/hadoop_store/hdfs/datanode;
 	chmod 755 ~/hadoop_store/hdfs/datanode;
+
+	tar zxf hadoop.tar.gz;
+	rm hadoop.tar.gz;
 
 	exit
 
@@ -230,22 +230,16 @@ echo "**************************************************************************
 
 
 echo "Retour au master"
-echo "les adresses ${slaves[@]}"
-echo "les hostnames ${names[@]}"
-echo "*********************************************************************************"
-
-#Copie des config hadoop dans les slaves
-p=0
-while [ $p -lt $nombreslaves ]
-do
-	scp ~/hadoop/etc/hadoop/core-site.xml \
-	~/hadoop/etc/hadoop/hdfs-site.xml \
-	~/hadoop/etc/hadoop/mapred-site.xml \
-	~/hadoop/etc/hadoop/yarn-site.xml \
-	${names[$p]}@${slaves[$p]}:~/hadoop/etc/hadoop/.
-        p=$((p+1))
-done
-echo "*********************************************************************************"
 
 #Formater le namenode
+echo "Formating namenode"
 hdfs namenode -format
+
+source ~/.bashrc
+
+echo "Starting dfs"
+start-dfs.sh
+
+echo "starting yarn"
+start-yarn.sh
+
