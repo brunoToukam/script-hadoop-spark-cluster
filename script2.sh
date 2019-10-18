@@ -24,7 +24,7 @@ figlet Installation de hadoop
 #Configuration du /etc/hosts
 echo "Entrez l'adresse du master"
 read masteraddress
-echo "Entrez l'adresse du master"
+echo "Entrez le nom du master"
 read mastername
 echo "$masteraddress $mastername" | sudo tee -a /etc/hosts
 i=0
