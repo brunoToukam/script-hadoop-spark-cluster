@@ -18,7 +18,7 @@ sudo yum -y install figlet
 
 
 
-figlet Installation de hadoop
+figlet Installation de hadoop-2.7.7
 
 
 #Configuration du /etc/hosts
@@ -97,8 +97,8 @@ echo -e "\n" >> ~/hadoop/etc/hadoop/core-site.xml
 
 echo "<configuration>" >> ~/hadoop/etc/hadoop/core-site.xml
 echo "  <property>" >> ~/hadoop/etc/hadoop/core-site.xml
-echo "    <name>fs.default.name</name>" >> ~/hadoop/etc/hadoop/core-site.xml
-echo "    <value>hdfs://$masteraddress:8020</value>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "    <name>fs.defaultFS</name>" >> ~/hadoop/etc/hadoop/core-site.xml
+echo "    <value>hdfs://$masteraddress:9000</value>" >> ~/hadoop/etc/hadoop/core-site.xml
 echo "  </property>" >> ~/hadoop/etc/hadoop/core-site.xml
 echo "</configuration>" >> ~/hadoop/etc/hadoop/core-site.xml
 echo "*********************************************************************************"
@@ -180,8 +180,13 @@ echo "  </property>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 echo "</configuration>" >> ~/hadoop/etc/hadoop/yarn-site.xml
 echo "*********************************************************************************"
 
+# Configuration des masters
+touch ~/hadoop/etc/hadoop/masters
+echo $masteraddress > ~/hadoop/etc/hadoop/masters
+echo "*********************************************************************************"
+
 #Configuration des slaves
-echo > ~/hadoop/etc/hadoop/slaves
+touch ~/hadoop/etc/hadoop/slaves
 k=0
 while [ $k -lt $nombreslaves ]
 do
@@ -206,6 +211,7 @@ do
 	scp hadoop.tar.gz ${names[$p]}@${slaves[$p]}:~/.
         p=$((p+1))
 done
+rm hadoop.tar.gz
 echo "*********************************************************************************"
 
 
@@ -259,4 +265,107 @@ start-dfs.sh
 
 echo "starting yarn"
 start-yarn.sh
+
+
+
+echo "*********************************************************************************"
+figlet Installation de Spark-2.4.4
+echo "*********************************************************************************"
+
+cd ~
+sudo yum -y update
+echo "*********************************************************************************"
+
+
+# Installer scala
+cd ~
+wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm
+sudo yum -y install scala-2.11.8.rpm
+
+echo "*********************************************************************************"
+
+#Installation de spark-2.4.4
+wget https://www-eu.apache.org/dist/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz
+tar zxf spark-2.4.4-bin-hadoop2.7.tgz
+mv spark-2.4.4-bin-hadoop2.7 spark
+rm spark-2.4.4-bin-hadoop2.7.tgz
+
+
+echo "*********************************************************************************"
+
+#Configuration des variables d'environnment spark
+echo "export SPARK_HOME=$HOME/spark" >> ~/.bashrc
+echo "export PATH=$PATH:$HOME/spark/sbin:$HOME/spark/bin" >> ~/.bashrc
+
+source ~/.bashrc
+
+echo "*********************************************************************************"
+#Configuration de spark-env.sh
+cp ~/spark/conf/spark-env.sh.template ~/spark/conf/spark-env.sh
+
+echo "SCALA_HOME=" >> ~/spark/conf/spark-env.sh
+echo "export JAVA_HOME=/usr/lib/jvm/java-openjdk" >> ~/spark/conf/spark-env.sh
+echo "export export SPARK_HOME=$HOME/spark" >> ~/spark/conf/spark-env.sh
+echo "export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/spark/conf/spark-env.sh
+echo "export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/spark/conf/spark-env.sh
+echo "export SPARK_WORKER_DIR=$HOME/spark/work" >> ~/spark/conf/spark-env.sh
+echo "export SPARK_LOG_DIR=$HOME/spark/log" >> ~/spark/conf/spark-env.sh
+echo "export SPARK_MASTER_IP=$masteraddress" >> ~/spark/conf/spark-env.sh
+
+echo "*********************************************************************************"
+
+#Configuration des slaves
+touch ~/spark/conf/slaves
+k=0
+while [ $k -lt $nombreslaves ]
+do
+	if [ $k -eq 0 ]
+	then
+		echo ${slaves[$k]} > ~/spark/conf/slaves
+	else
+		echo ${slaves[$k]} >> ~/spark/conf/slaves
+	fi
+        k=$((k+1))
+done
+
+echo "*********************************************************************************"
+
+# archiver hadoop pour l'envoyer aux slaves
+cd ~
+tar czf spark.tar.gz spark
+
+#Copie des config hadoop dans les slaves
+p=0
+while [ $p -lt $nombreslaves ]
+do
+	scp spark.tar.gz ${names[$p]}@${slaves[$p]}:~/.
+        p=$((p+1))
+done
+
+rm spark.tar.gz
+echo "*********************************************************************************"
+
+
+#Slaves configuration
+k=0
+while [ $k -lt $nombreslaves ]
+do
+	ssh -t ${names[$k]}@${slaves[$k]} '
+	cd ~;
+	sudo yum -y update;
+	
+	tar zxf spark.tar.gz;
+	rm spark.tar.gz;
+	exit
+	bash -l'	
+		
+        k=$((k+1))
+done
+echo "*********************************************************************************"
+
+
+echo "Retour au master"
+cd ~
+# Lancer spark
+start-all.sh
 
