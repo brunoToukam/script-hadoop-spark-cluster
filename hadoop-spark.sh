@@ -24,9 +24,9 @@ figlet Installation de hadoop-2.7.7
 #Configuration du /etc/hosts
 echo "Entrez l'adresse du master"
 read masteraddress
-echo "Entrez le nom du master"
-read mastername
-echo "$masteraddress $mastername" | sudo tee -a /etc/hosts
+#echo "Entrez le nom du master"
+#read mastername
+echo "$masteraddress master" | sudo tee -a /etc/hosts
 i=0
 slaves=()
 echo "Entrez le nombre de slaves"
@@ -296,6 +296,13 @@ echo "**************************************************************************
 #Configuration des variables d'environnment spark
 echo "export SPARK_HOME=$HOME/spark" >> ~/.bashrc
 echo "export PATH=$PATH:$HOME/spark/sbin:$HOME/spark/bin" >> ~/.bashrc
+echo "export export SPARK_HOME=$HOME/spark" >> ~/.bashrc
+echo "export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/.bashrc
+echo "export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/.bashrc
+echo "export SPARK_WORKER_DIR=$HOME/spark/work" >> ~/.bashrc
+echo "export SPARK_LOG_DIR=$HOME/spark/log" >> ~/.bashrc
+echo "export SPARK_MASTER_IP=$masteraddress" >> ~/.bashrc
+
 
 source ~/.bashrc
 
@@ -303,14 +310,8 @@ echo "**************************************************************************
 #Configuration de spark-env.sh
 cp ~/spark/conf/spark-env.sh.template ~/spark/conf/spark-env.sh
 
-echo "SCALA_HOME=" >> ~/spark/conf/spark-env.sh
+#echo "SCALA_HOME=" >> ~/spark/conf/spark-env.sh
 echo "export JAVA_HOME=/usr/lib/jvm/java-openjdk" >> ~/spark/conf/spark-env.sh
-echo "export export SPARK_HOME=$HOME/spark" >> ~/spark/conf/spark-env.sh
-echo "export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/spark/conf/spark-env.sh
-echo "export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/spark/conf/spark-env.sh
-echo "export SPARK_WORKER_DIR=$HOME/spark/work" >> ~/spark/conf/spark-env.sh
-echo "export SPARK_LOG_DIR=$HOME/spark/log" >> ~/spark/conf/spark-env.sh
-echo "export SPARK_MASTER_IP=$masteraddress" >> ~/spark/conf/spark-env.sh
 
 echo "*********************************************************************************"
 
