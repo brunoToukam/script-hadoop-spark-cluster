@@ -265,7 +265,8 @@ start-dfs.sh
 
 echo "starting yarn"
 start-yarn.sh
-
+cd ~
+stop-all.sh
 
 
 echo "*********************************************************************************"
@@ -367,6 +368,9 @@ echo "**************************************************************************
 
 echo "Retour au master"
 cd ~
+source .bashrc
+
 # Lancer spark
 start-all.sh
+
 
